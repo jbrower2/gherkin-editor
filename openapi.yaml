@@ -1,0 +1,353 @@
+openapi: 3.0.3
+info:
+  title: gherkin-editor
+  version: 1.0.0
+  description: APIs for the Gherkin Editor application.
+servers:
+  - description: Local
+    url: http://localhost:8080
+paths:
+  /project:
+    get:
+      description: Get all projects available to the user.
+      operationId: Project.findAll
+      tags:
+        - Project
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: All projects available to the user.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+    post:
+      description: Create a new project.
+      operationId: Project.create
+      tags:
+        - Project
+      security:
+        - basicAuth: []
+      requestBody:
+        description: The project details.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProjectRequest"
+      responses:
+        200:
+          description: Empty success response.
+  /project/{projectId}:
+    get:
+      description: Get the specified project's details.
+      operationId: Project.findOne
+      tags:
+        - Project
+      security:
+        - basicAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The ID of the project.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: The project's details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    post:
+      description: Update the specified project's details.
+      operationId: Project.update
+      tags:
+        - Project
+      security:
+        - basicAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The ID of the project.
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: The project details.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProjectRequest"
+      responses:
+        200:
+          description: Empty success response.
+  /project/{projectId}/feature/{fileName}:
+    get:
+      description: Get a feature file.
+      operationId: Feature.findOne
+      tags:
+        - Feature
+      security:
+        - basicAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The ID of the project.
+          schema:
+            type: string
+            format: uuid
+        - name: fileName
+          in: path
+          required: true
+          description: The path of the feature file.
+          schema:
+            type: string
+      responses:
+        200:
+          description: The feature file.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Feature"
+    post:
+      description: Create or update a feature file.
+      operationId: Feature.update
+      tags:
+        - Feature
+      security:
+        - basicAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The ID of the project.
+          schema:
+            type: string
+            format: uuid
+        - name: fileName
+          in: path
+          required: true
+          description: The path of the feature file.
+          schema:
+            type: string
+      requestBody:
+        description: The feature file.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Feature"
+      responses:
+        200:
+          description: Empty success response.
+components:
+  schemas:
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        repoUrl:
+          type: string
+        repoUser:
+          type: string
+        repoPassword:
+          type: string
+          format: password
+        features:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - repoUrl
+        - repoUser
+        - repoPassword
+        - features
+    CreateProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        repoUrl:
+          type: string
+        repoUser:
+          type: string
+        repoPassword:
+          type: string
+          format: password
+      required:
+        - repoUrl
+        - repoUser
+        - repoPassword
+    UpdateProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        repoUrl:
+          type: string
+        repoUser:
+          type: string
+        repoPassword:
+          type: string
+          format: password
+    Feature:
+      type: object
+      properties:
+        tags:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        description:
+          type: string
+        background:
+          $ref: "#/components/schemas/Background"
+        children:
+          type: array
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/Rule"
+              - $ref: "#/components/schemas/Scenario"
+      required:
+        - tags
+        - name
+        - children
+    Background:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        given:
+          type: array
+          items:
+            $ref: "#/components/schemas/Step"
+      required:
+        - name
+        - given
+    Rule:
+      type: object
+      properties:
+        tags:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        description:
+          type: string
+        background:
+          $ref: "#/components/schemas/Background"
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/Scenario"
+      required:
+        - tags
+        - name
+        - children
+    Scenario:
+      type: object
+      properties:
+        tags:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        description:
+          type: string
+        given:
+          type: array
+          items:
+            $ref: "#/components/schemas/Step"
+        when:
+          type: array
+          items:
+            $ref: "#/components/schemas/Step"
+        then:
+          type: array
+          items:
+            $ref: "#/components/schemas/Step"
+        examples:
+          $ref: "#/components/schemas/Examples"
+      required:
+        - tags
+        - name
+        - given
+        - when
+        - then
+    Examples:
+      type: object
+      properties:
+        tags:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        description:
+          type: string
+        header:
+          type: array
+          items:
+            type: string
+        rows:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+      required:
+        - tags
+        - name
+        - header
+        - rows
+    Step:
+      type: object
+      properties:
+        text:
+          type: string
+        argument:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/DataTable"
+      required:
+        - text
+    DataTable:
+      type: object
+      properties:
+        header:
+          type: array
+          items:
+            type: string
+        rows:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+      required:
+        - rows
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+security:
+  - basicAuth: []

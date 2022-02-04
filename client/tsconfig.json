@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"baseUrl": ".",
+		"esModuleInterop": true,
+		"moduleResolution": "node",
+		"outDir": "dist",
+		"paths": {
+			"*": ["node_modules/*"]
+		},
+		"resolveJsonModule": true,
+		"sourceMap": true,
+		"strict": true
+	},
+	"include": ["src/**/*", "gen/**/*"]
+}
